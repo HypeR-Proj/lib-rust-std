@@ -1,49 +1,13 @@
 {
   "version": 1,
-  "name": "rust-std",
+  "name": "lib-std",
   "kind": "library",
   "origin": {
     "repository": "https://github.com/roolrz/HypeR",
     "commit": "8d42d047058a2b58a291803700e86487fb723f7a"
   },
-  "sources": {
-    "pal/README.md": "sdk/toolchain/rust-std/README.md",
-    "pal/overlay/std/src/os/hyper/fs.rs": "sdk/toolchain/rust-std/overlay/std/src/os/hyper/fs.rs",
-    "pal/overlay/std/src/os/hyper/io.rs": "sdk/toolchain/rust-std/overlay/std/src/os/hyper/io.rs",
-    "pal/overlay/std/src/os/hyper/mod.rs": "sdk/toolchain/rust-std/overlay/std/src/os/hyper/mod.rs",
-    "pal/overlay/std/src/sys/alloc/hyper.rs": "sdk/toolchain/rust-std/overlay/std/src/sys/alloc/hyper.rs",
-    "pal/overlay/std/src/sys/args/hyper.rs": "sdk/toolchain/rust-std/overlay/std/src/sys/args/hyper.rs",
-    "pal/overlay/std/src/sys/env/hyper.rs": "sdk/toolchain/rust-std/overlay/std/src/sys/env/hyper.rs",
-    "pal/overlay/std/src/sys/fs/hyper.rs": "sdk/toolchain/rust-std/overlay/std/src/sys/fs/hyper.rs",
-    "pal/overlay/std/src/sys/io/is_terminal/hyper.rs": "sdk/toolchain/rust-std/overlay/std/src/sys/io/is_terminal/hyper.rs",
-    "pal/overlay/std/src/sys/pal/hyper/ffi.rs": "sdk/toolchain/rust-std/overlay/std/src/sys/pal/hyper/ffi.rs",
-    "pal/overlay/std/src/sys/pal/hyper/futex.rs": "sdk/toolchain/rust-std/overlay/std/src/sys/pal/hyper/futex.rs",
-    "pal/overlay/std/src/sys/pal/hyper/mod.rs": "sdk/toolchain/rust-std/overlay/std/src/sys/pal/hyper/mod.rs",
-    "pal/overlay/std/src/sys/paths/hyper.rs": "sdk/toolchain/rust-std/overlay/std/src/sys/paths/hyper.rs",
-    "pal/overlay/std/src/sys/pipe/hyper.rs": "sdk/toolchain/rust-std/overlay/std/src/sys/pipe/hyper.rs",
-    "pal/overlay/std/src/sys/process/hyper.rs": "sdk/toolchain/rust-std/overlay/std/src/sys/process/hyper.rs",
-    "pal/overlay/std/src/sys/stdio/hyper.rs": "sdk/toolchain/rust-std/overlay/std/src/sys/stdio/hyper.rs",
-    "pal/overlay/std/src/sys/thread/hyper.rs": "sdk/toolchain/rust-std/overlay/std/src/sys/thread/hyper.rs",
-    "pal/overlay/std/src/sys/thread_local/key/hyper.rs": "sdk/toolchain/rust-std/overlay/std/src/sys/thread_local/key/hyper.rs",
-    "pal/overlay/std/src/sys/time/hyper.rs": "sdk/toolchain/rust-std/overlay/std/src/sys/time/hyper.rs",
-    "tools/prepare-rust-std.py": "sdk/toolchain/scripts/prepare-rust-std.py",
-    "shim/include/hyper/std.h": "stdlib/hyper/include/hyper/std.h",
-    "shim/src/crt-std.c": "stdlib/hyper/src/crt-std.c",
-    "shim/src/std-fs.c": "stdlib/hyper/src/std-fs.c",
-    "shim/src/std-process.c": "stdlib/hyper/src/std-process.c",
-    "shim/src/std.c": "stdlib/hyper/src/std.c",
-    "delivery/Cargo.toml": "stdlib/rust-std/Cargo.toml",
-    "delivery/component.mk": "stdlib/rust-std/component.mk",
-    "delivery/src/lib.rs": "stdlib/rust-std/src/lib.rs"
-  },
   "SPDX-FileCopyrightText": "2026 roolrz",
   "SPDX-License-Identifier": "Apache-2.0",
-  "mounts": {
-    "pal": "sdk/toolchain/rust-std",
-    "tools": "sdk/toolchain/scripts",
-    "shim": "stdlib/hyper",
-    "delivery": "stdlib/rust-std"
-  },
   "packages": [],
   "tests": [
     [
@@ -51,14 +15,5 @@
       "rust-std-test",
       "ARCH=aarch64"
     ]
-  ],
-  "local_workspace": true,
-  "cargo_context": {
-    "delivery/Cargo.toml": {
-      "workspace": null,
-      "membership": "../../app",
-      "dependency_paths": {},
-      "inherited_dependencies": {}
-    }
-  }
+  ]
 }

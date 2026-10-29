@@ -138,7 +138,7 @@ Guards and storage are reclaimed only after Native thread termination; the reape
 lives until process exit. The runtime creates the final main stack with the same
 SDK allocator and retires the kernel's temporary bootstrap reservation before
 constructors. Both main and workers support explicit downward growth through `hyper_os::thread::grow_current_stack()` within reserved capacity,
-without moving existing frames. See [SDK stacks](https://github.com/HypeR-Proj/lib/blob/main/README.md#guarded-growable-stacks).
+without moving existing frames. See [SDK stacks](https://github.com/HypeR-Proj/libc/blob/main/README.md#guarded-growable-stacks).
 A guard catches accesses to that page, not arbitrary jumps over it.
 
 ## Filesystem semantics
