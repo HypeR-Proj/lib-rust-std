@@ -138,7 +138,7 @@ Guards and storage are reclaimed only after Native thread termination; the reape
 lives until process exit. The runtime creates the final main stack with the same
 SDK allocator and retires the kernel's temporary bootstrap reservation before
 constructors. Both main and workers support explicit downward growth through `hyper_os::thread::grow_current_stack()` within reserved capacity,
-without moving existing frames. See [SDK stacks](https://github.com/HypeR-Proj/lib/blob/main/README.md#guarded-growable-stacks).
+without moving existing frames. See [SDK stacks](https://github.com/HypeR-Proj/libc/blob/main/README.md#guarded-growable-stacks).
 A guard catches accesses to that page, not arbitrary jumps over it.
 
 ## Filesystem semantics
@@ -182,7 +182,7 @@ acknowledge in-memory changes without restart persistence. Board deployments
 also mount FAT at `/data` through the Native block frontend and I/O VM; sync
 flushes that backend, with durability dependent on device completion and flush
 semantics. FAT has additional limits on links, modes, unlink and rename;
-see [FAT semantics](https://github.com/HypeR-Proj/HypeR/blob/main/docs/design/storage/fat.md). The std surface does not
+see [FAT semantics](https://hyper-proj.github.io/fs-fat/docs/fat.html). The std surface does not
 make unsupported backend operations available.
 Recursive deletion uses pinned directory capabilities and conditional removal,
 so replacing an entry with a symlink cannot redirect traversal into its target.
