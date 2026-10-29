@@ -48,7 +48,17 @@
   "tests": [
     [
       "make",
-      "sdk-test"
+      "rust-std-test",
+      "ARCH=aarch64"
     ]
-  ]
+  ],
+  "local_workspace": true,
+  "cargo_context": {
+    "delivery/Cargo.toml": {
+      "workspace": null,
+      "membership": "../../app",
+      "dependency_paths": {},
+      "inherited_dependencies": {}
+    }
+  }
 }

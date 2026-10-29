@@ -21,7 +21,7 @@ using `hyper_rt::entry!` select `HYPER_RUST_STD=0`, which retains the
 depends on `hyper-rt` must enable its `std` feature to avoid defining a second
 panic handler; it should still use ordinary `main`, not `hyper_rt::entry!`.
 
-The [acceptance application](../tests/std-smoke/src/main.rs) uses unmodified
+The [acceptance application](https://github.com/HypeR-Proj/toolchain/blob/main/tests/std-smoke/src/main.rs) uses unmodified
 clap with default features, derive, and environment lookup. Its procedural
 macros run on the host compiler; its application and ordinary dependencies
 are compiled for HypeR. Run `make test-native` to exercise it through the
@@ -138,7 +138,7 @@ Guards and storage are reclaimed only after Native thread termination; the reape
 lives until process exit. The runtime creates the final main stack with the same
 SDK allocator and retires the kernel's temporary bootstrap reservation before
 constructors. Both main and workers support explicit downward growth through `hyper_os::thread::grow_current_stack()` within reserved capacity,
-without moving existing frames. See [SDK stacks](../../../stdlib/hyper/README.md#guarded-growable-stacks).
+without moving existing frames. See [SDK stacks](https://github.com/HypeR-Proj/lib/blob/main/README.md#guarded-growable-stacks).
 A guard catches accesses to that page, not arbitrary jumps over it.
 
 ## Filesystem semantics
@@ -182,7 +182,7 @@ acknowledge in-memory changes without restart persistence. Board deployments
 also mount FAT at `/data` through the Native block frontend and I/O VM; sync
 flushes that backend, with durability dependent on device completion and flush
 semantics. FAT has additional limits on links, modes, unlink and rename;
-see [FAT semantics](../../../docs/design/storage/fat.md). The std surface does not
+see [FAT semantics](https://github.com/HypeR-Proj/HypeR/blob/main/docs/design/storage/fat.md). The std surface does not
 make unsupported backend operations available.
 Recursive deletion uses pinned directory capabilities and conditional removal,
 so replacing an entry with a symlink cannot redirect traversal into its target.
@@ -229,7 +229,7 @@ applications use the assembled SDK.
 
 ## Architecture selection
 
-The installed SDK selects the target; see [toolchain architecture selection](../README.md#architecture-selection).
+The installed SDK selects the target; see [toolchain architecture selection](https://github.com/HypeR-Proj/toolchain/blob/main/README.md#architecture-selection).
 RV64 uses LP64D and a 16-byte aligned stack. Both architectures share this std
 PAL and key-based TLS implementation; neither currently supports compiler ELF TLS.
 
