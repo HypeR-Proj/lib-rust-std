@@ -32,7 +32,7 @@ int64_t __hyper_std_thread_spawn(size_t stack_size, hyper_std_thread_entry_t ent
 int64_t __hyper_std_thread_join(uintptr_t token);
 void __hyper_std_thread_detach(uintptr_t token);
 
-/* Shared process stream buffering lives in libhyper, not each static shim. */
+/* Shared process stream buffering lives in libsystem, not each static shim. */
 int64_t hyper_runtime_stdio_read(void *buffer, size_t capacity, size_t *actual);
 int64_t hyper_runtime_stdio_write(uint32_t stream, const void *buffer, size_t count,
 				  size_t *actual);

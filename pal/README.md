@@ -66,7 +66,7 @@ rerunning the Native acceptance suite, not merely changing the version pin.
 The platform adapter contains Rust-private type conversions. Its C calls go
 through `libhyper-std.a`, which contains std-specific translation and per-spawn
 argument/environment staging.
-The shared `libhyper` owns startup state, the current directory, input buffering,
+The shared `libsystem` owns startup state, the current directory, input buffering,
 the heap, and TLS primitives. Thus separately linked shims do not create separate process
 registries. The bridge headers and Rust adapter are versioned with the SDK;
 they are not new kernel syscalls or a promise of permanent binary stability.
@@ -138,7 +138,7 @@ Guards and storage are reclaimed only after Native thread termination; the reape
 lives until process exit. The runtime creates the final main stack with the same
 SDK allocator and retires the kernel's temporary bootstrap reservation before
 constructors. Both main and workers support explicit downward growth through `hyper_os::thread::grow_current_stack()` within reserved capacity,
-without moving existing frames. See [SDK stacks](https://github.com/HypeR-Proj/libc/blob/main/README.md#guarded-growable-stacks).
+without moving existing frames. See [SDK stacks](https://github.com/HypeR-Proj/lib-system/blob/main/README.md#guarded-growable-stacks).
 A guard catches accesses to that page, not arbitrary jumps over it.
 
 ## Filesystem semantics
@@ -156,7 +156,7 @@ start at the delegated
 cwd, or root when no cwd is supplied; absolute paths and absolute symlink targets
 start at the delegated root. Parent traversal cannot escape that root.
 
-The cwd owner lives in `libhyper`. `env::set_current_dir` replaces an owned
+The cwd owner lives in `libsystem`. `env::set_current_dir` replaces an owned
 Directory scope; concurrent operations retain their own capability snapshots.
 `env::current_dir` and `fs::canonicalize` resolve the current namespace spelling,
 including directory renames, rather than returning a cached lexical path.
