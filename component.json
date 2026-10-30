@@ -15,5 +15,75 @@
       "rust-std-test",
       "ARCH=aarch64"
     ]
-  ]
+  ],
+  "cargo": [
+    {
+      "manifest": "Cargo.toml",
+      "domain": "system"
+    }
+  ],
+  "artifacts": [
+    {
+      "library": "libhyper_rust_std.so",
+      "staged": "lib/libhyper_rust_std.so",
+      "destination": "lib64/{arch}-hyper-hyper/libhyper_rust_std.so",
+      "mode": "0755",
+      "profiles": [
+        "system",
+        "development",
+        "io"
+      ],
+      "rust_runtime": "std",
+      "environment": "system",
+      "manifest": "Cargo.toml"
+    }
+  ],
+  "build": {
+    "requires": [
+      "toolchain"
+    ],
+    "actions": {
+      "all": [
+        [
+          "python3",
+          "{workspace}/scripts/build-native-module.py",
+          "--module",
+          "{module}",
+          "--action",
+          "{action}"
+        ]
+      ],
+      "build": [
+        [
+          "python3",
+          "{workspace}/scripts/build-native-module.py",
+          "--module",
+          "{module}",
+          "--action",
+          "{action}"
+        ]
+      ],
+      "check": [
+        [
+          "python3",
+          "{workspace}/scripts/build-native-module.py",
+          "--module",
+          "{module}",
+          "--action",
+          "{action}"
+        ]
+      ]
+    }
+  },
+  "workspace": {
+    "files": {
+      "pal": "sdk/toolchain/rust-std",
+      "tools/prepare-rust-std.py": "sdk/toolchain/scripts/prepare-rust-std.py",
+      "shim/include/hyper/std.h": "stdlib/system/include/hyper/std.h",
+      "shim/src/crt-std.c": "stdlib/system/src/crt-std.c",
+      "shim/src/std-fs.c": "stdlib/system/src/std-fs.c",
+      "shim/src/std-process.c": "stdlib/system/src/std-process.c",
+      "shim/src/std.c": "stdlib/system/src/std.c"
+    }
+  }
 }
