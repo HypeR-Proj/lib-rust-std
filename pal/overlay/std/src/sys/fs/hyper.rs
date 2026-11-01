@@ -13,6 +13,9 @@ use crate::sys::pal::{cvt, ffi, unsupported};
 use crate::sys::time::SystemTime;
 use crate::vec::Vec;
 
+#[path = "hyper/removal.rs"]
+mod removal;
+
 #[derive(Debug)]
 struct Handle(u64);
 impl Drop for Handle {
@@ -812,15 +815,20 @@ fn open_directory_at(parent: &Handle, name: &[u8], nofollow: bool) -> io::Result
     Ok(Handle(handle))
 }
 fn remove_observed(parent: &Handle, name: &[u8], info: &FileAttr) -> io::Result<()> {
-    cvt(unsafe {
-        ffi::__hyper_std_fs_remove_if(
-            parent.0,
-            name.as_ptr(),
-            name.len(),
-            u32::from(info.file_type().is_dir()),
-            info.0.node_id,
-        )
-    })
+    removal::remove(
+        || {
+            cvt(unsafe {
+                ffi::__hyper_std_fs_remove_if(
+                    parent.0,
+                    name.as_ptr(),
+                    name.len(),
+                    u32::from(info.file_type().is_dir()),
+                    info.0.node_id,
+                )
+            })
+        },
+        || stat_at(parent, name).map(|current| same_location(info, &current)),
+    )
 }
 
 fn same_location(left: &FileAttr, right: &FileAttr) -> bool {
