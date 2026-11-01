@@ -4,11 +4,6 @@
   "version": 1,
   "name": "lib-rust-std",
   "kind": "library",
-  "origin": {
-    "repository": "https://github.com/roolrz/HypeR",
-    "commit": "8d42d047058a2b58a291803700e86487fb723f7a"
-  },
-  "packages": [],
   "tests": [
     [
       "python3",
@@ -25,7 +20,11 @@
   "cargo": [
     {
       "manifest": "Cargo.toml",
-      "domain": "system"
+      "domain": "system",
+      "shared": true,
+      "features": [],
+      "default_features": false,
+      "link_probe": "tests/link/Cargo.toml"
     }
   ],
   "artifacts": [
@@ -45,41 +44,10 @@
     }
   ],
   "build": {
+    "type": "native-rust",
     "requires": [
       "toolchain"
-    ],
-    "actions": {
-      "all": [
-        [
-          "python3",
-          "{workspace}/scripts/build-native-module.py",
-          "--module",
-          "{module}",
-          "--action",
-          "{action}"
-        ]
-      ],
-      "build": [
-        [
-          "python3",
-          "{workspace}/scripts/build-native-module.py",
-          "--module",
-          "{module}",
-          "--action",
-          "{action}"
-        ]
-      ],
-      "check": [
-        [
-          "python3",
-          "{workspace}/scripts/build-native-module.py",
-          "--module",
-          "{module}",
-          "--action",
-          "{action}"
-        ]
-      ]
-    }
+    ]
   },
   "workspace": {
     "files": {
