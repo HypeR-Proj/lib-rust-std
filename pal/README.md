@@ -55,6 +55,10 @@ libc, native TLS, or another OS-specific backend still require their own
 HypeR support. Unused unsupported APIs remain available for compilation;
 calling them follows each upstream API's error/panic contract.
 
+Recursive removal allows up to five seconds for closed handles' node leases to
+retire. It rechecks the observed identity before retrying and keeps the original
+identity in every conditional removal; a replacement is never adopted.
+
 ## Ownership and build boundary
 
 `prepare-rust-std.py` copies the installed rust-src into the SDK staging area

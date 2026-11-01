@@ -11,6 +11,12 @@
   "packages": [],
   "tests": [
     [
+      "python3",
+      "{component}/tools/check-removal.py",
+      "--output",
+      "{system}/target/module-rust-std/removal"
+    ],
+    [
       "make",
       "rust-std-test",
       "ARCH=aarch64"
