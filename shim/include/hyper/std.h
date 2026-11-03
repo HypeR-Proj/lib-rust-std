@@ -37,6 +37,14 @@ int64_t hyper_runtime_stdio_read(void *buffer, size_t capacity, size_t *actual);
 int64_t hyper_runtime_stdio_write(uint32_t stream, const void *buffer, size_t count,
 				  size_t *actual);
 
+/* SDK-private std open options; not Native directory-open flags. */
+#define HYPER_STD_OPEN_READ UINT32_C(1)
+#define HYPER_STD_OPEN_WRITE UINT32_C(2)
+#define HYPER_STD_OPEN_APPEND UINT32_C(4)
+#define HYPER_STD_OPEN_TRUNCATE UINT32_C(8)
+#define HYPER_STD_OPEN_CREATE UINT32_C(16)
+#define HYPER_STD_OPEN_EXCLUSIVE UINT32_C(32)
+
 int64_t __hyper_std_fs_open(const char *path, size_t size, uint32_t options, uint64_t *handle);
 void __hyper_std_fs_close(uint64_t handle);
 int64_t __hyper_std_fs_read(uint64_t handle, uint64_t offset, void *buffer, size_t size,

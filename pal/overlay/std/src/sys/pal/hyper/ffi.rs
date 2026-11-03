@@ -1,7 +1,18 @@
 // SPDX-FileCopyrightText: 2026 roolrz
 // SPDX-License-Identifier: Apache-2.0
 
-// Must match stdlib/system/include/hyper/std.h and thread.h. No Rust-private layouts.
+// SDK-private bridge; the Native record layouts are checked below.
+#[allow(dead_code)]
+#[path = "native_abi.rs"]
+pub mod native;
+
+// These are private std open options, distinct from Native directory flags.
+pub const OPEN_READ: u32 = 1;
+pub const OPEN_WRITE: u32 = 2;
+pub const OPEN_APPEND: u32 = 4;
+pub const OPEN_TRUNCATE: u32 = 8;
+pub const OPEN_CREATE: u32 = 16;
+pub const OPEN_EXCLUSIVE: u32 = 32;
 #[link(name = "hyper-std", kind = "static")]
 unsafe extern "C" {
     pub fn __hyper_std_stdin_exact() -> i32;
@@ -259,3 +270,153 @@ unsafe extern "C" {
     pub fn __hyper_std_wait_rearm(set: u64, id: u64) -> i64;
     pub fn __hyper_std_wait_remove(set: u64, id: u64) -> i64;
 }
+
+// The private bridge cannot silently diverge from the schema-owned C records.
+const _: () = {
+    assert!(size_of::<FileInfo>() == size_of::<native::HyperNativeFileMetadata>());
+    assert!(align_of::<FileInfo>() == align_of::<native::HyperNativeFileMetadata>());
+    assert!(
+        core::mem::offset_of!(FileInfo, filesystem_id)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, filesystem_id)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, mount_id)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, mount_id)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, node_id)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, node_id)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, size)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, size)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, mode)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, mode)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, kind)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, kind)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, valid_times)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, valid_times)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, reserved)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, reserved)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, accessed_seconds)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, accessed_seconds)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, accessed_nanoseconds)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, accessed_nanoseconds)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, accessed_reserved)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, accessed_reserved)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, modified_seconds)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, modified_seconds)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, modified_nanoseconds)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, modified_nanoseconds)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, modified_reserved)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, modified_reserved)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, created_seconds)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, created_seconds)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, created_nanoseconds)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, created_nanoseconds)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, created_reserved)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, created_reserved)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, changed_seconds)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, changed_seconds)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, changed_nanoseconds)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, changed_nanoseconds)
+    );
+    assert!(
+        core::mem::offset_of!(FileInfo, changed_reserved)
+            == core::mem::offset_of!(native::HyperNativeFileMetadata, changed_reserved)
+    );
+};
+const _: () = {
+    assert!(size_of::<FileUpdate>() == size_of::<native::HyperNativeFileMetadataUpdate>());
+    assert!(align_of::<FileUpdate>() == align_of::<native::HyperNativeFileMetadataUpdate>());
+    assert!(
+        core::mem::offset_of!(FileUpdate, mask)
+            == core::mem::offset_of!(native::HyperNativeFileMetadataUpdate, mask)
+    );
+    assert!(
+        core::mem::offset_of!(FileUpdate, mode)
+            == core::mem::offset_of!(native::HyperNativeFileMetadataUpdate, mode)
+    );
+    assert!(
+        core::mem::offset_of!(FileUpdate, accessed_seconds)
+            == core::mem::offset_of!(native::HyperNativeFileMetadataUpdate, accessed_seconds)
+    );
+    assert!(
+        core::mem::offset_of!(FileUpdate, accessed_nanoseconds)
+            == core::mem::offset_of!(native::HyperNativeFileMetadataUpdate, accessed_nanoseconds)
+    );
+    assert!(
+        core::mem::offset_of!(FileUpdate, accessed_reserved)
+            == core::mem::offset_of!(native::HyperNativeFileMetadataUpdate, accessed_reserved)
+    );
+    assert!(
+        core::mem::offset_of!(FileUpdate, modified_seconds)
+            == core::mem::offset_of!(native::HyperNativeFileMetadataUpdate, modified_seconds)
+    );
+    assert!(
+        core::mem::offset_of!(FileUpdate, modified_nanoseconds)
+            == core::mem::offset_of!(native::HyperNativeFileMetadataUpdate, modified_nanoseconds)
+    );
+    assert!(
+        core::mem::offset_of!(FileUpdate, modified_reserved)
+            == core::mem::offset_of!(native::HyperNativeFileMetadataUpdate, modified_reserved)
+    );
+};
+const _: () = {
+    assert!(size_of::<DirectoryEntry>() == size_of::<native::HyperNativeDirectoryEntry>());
+    assert!(align_of::<DirectoryEntry>() == align_of::<native::HyperNativeDirectoryEntry>());
+    assert!(
+        core::mem::offset_of!(DirectoryEntry, size)
+            == core::mem::offset_of!(native::HyperNativeDirectoryEntry, size)
+    );
+    assert!(
+        core::mem::offset_of!(DirectoryEntry, mode)
+            == core::mem::offset_of!(native::HyperNativeDirectoryEntry, mode)
+    );
+    assert!(
+        core::mem::offset_of!(DirectoryEntry, kind)
+            == core::mem::offset_of!(native::HyperNativeDirectoryEntry, kind)
+    );
+    assert!(
+        core::mem::offset_of!(DirectoryEntry, name_length)
+            == core::mem::offset_of!(native::HyperNativeDirectoryEntry, name_length)
+    );
+    assert!(
+        core::mem::offset_of!(DirectoryEntry, reserved)
+            == core::mem::offset_of!(native::HyperNativeDirectoryEntry, reserved)
+    );
+    assert!(
+        core::mem::offset_of!(DirectoryEntry, name)
+            == core::mem::offset_of!(native::HyperNativeDirectoryEntry, name)
+    );
+};
