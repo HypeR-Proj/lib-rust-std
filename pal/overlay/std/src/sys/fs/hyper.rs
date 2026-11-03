@@ -12,6 +12,7 @@ pub use crate::sys::fs::common::{Dir, exists};
 use crate::sys::pal::{cvt, ffi, unsupported};
 use crate::sys::time::SystemTime;
 use crate::vec::Vec;
+use ffi::native as abi;
 
 #[path = "hyper/removal.rs"]
 mod removal;
@@ -77,7 +78,7 @@ impl FileAttr {
     pub fn modified(&self) -> io::Result<SystemTime> {
         metadata_time(
             self.0.valid_times,
-            2,
+            abi::HYPER_NATIVE_FILE_TIME_MODIFIED as u32,
             self.0.modified_seconds,
             self.0.modified_nanoseconds,
         )
@@ -85,7 +86,7 @@ impl FileAttr {
     pub fn accessed(&self) -> io::Result<SystemTime> {
         metadata_time(
             self.0.valid_times,
-            1,
+            abi::HYPER_NATIVE_FILE_TIME_ACCESSED as u32,
             self.0.accessed_seconds,
             self.0.accessed_nanoseconds,
         )
@@ -93,7 +94,7 @@ impl FileAttr {
     pub fn created(&self) -> io::Result<SystemTime> {
         metadata_time(
             self.0.valid_times,
-            4,
+            abi::HYPER_NATIVE_FILE_TIME_CREATED as u32,
             self.0.created_seconds,
             self.0.created_nanoseconds,
         )
@@ -119,13 +120,13 @@ impl FilePermissions {
 }
 impl FileType {
     pub fn is_file(&self) -> bool {
-        self.0 == 1
+        self.0 == abi::HYPER_NATIVE_DIRECTORY_ENTRY_KIND_FILE as u32
     }
     pub fn is_dir(&self) -> bool {
-        self.0 == 2
+        self.0 == abi::HYPER_NATIVE_DIRECTORY_ENTRY_KIND_DIRECTORY as u32
     }
     pub fn is_symlink(&self) -> bool {
-        self.0 == 3
+        self.0 == abi::HYPER_NATIVE_DIRECTORY_ENTRY_KIND_SYMLINK as u32
     }
 }
 impl FileTimes {
@@ -138,11 +139,11 @@ impl FileTimes {
     fn update(self) -> ffi::FileUpdate {
         let mut update = ffi::FileUpdate::default();
         if let Some(time) = self.accessed {
-            update.mask |= 2;
+            update.mask |= abi::HYPER_NATIVE_FILE_UPDATE_ACCESSED as u32;
             (update.accessed_seconds, update.accessed_nanoseconds) = time.native();
         }
         if let Some(time) = self.modified {
-            update.mask |= 4;
+            update.mask |= abi::HYPER_NATIVE_FILE_UPDATE_MODIFIED as u32;
             (update.modified_seconds, update.modified_nanoseconds) = time.native();
         }
         update
@@ -160,22 +161,22 @@ impl OpenOptions {
         }
     }
     pub fn read(&mut self, value: bool) {
-        self.set(1, value);
+        self.set(ffi::OPEN_READ, value);
     }
     pub fn write(&mut self, value: bool) {
-        self.set(2, value);
+        self.set(ffi::OPEN_WRITE, value);
     }
     pub fn append(&mut self, value: bool) {
-        self.set(4, value);
+        self.set(ffi::OPEN_APPEND, value);
     }
     pub fn truncate(&mut self, value: bool) {
-        self.set(8, value);
+        self.set(ffi::OPEN_TRUNCATE, value);
     }
     pub fn create(&mut self, value: bool) {
-        self.set(16, value);
+        self.set(ffi::OPEN_CREATE, value);
     }
     pub fn create_new(&mut self, value: bool) {
-        self.set(32, value);
+        self.set(ffi::OPEN_EXCLUSIVE, value);
     }
 }
 impl File {
@@ -219,7 +220,7 @@ impl File {
         Ok(Self(Arc::new(Description {
             handle: Handle(handle),
             offset: Mutex::new(0),
-            append: options.bits & 4 != 0,
+            append: options.bits & ffi::OPEN_APPEND != 0,
         })))
     }
     pub fn file_attr(&self) -> io::Result<FileAttr> {
@@ -228,25 +229,29 @@ impl File {
         FileAttr::checked(info)
     }
     pub fn fsync(&self) -> io::Result<()> {
-        cvt(unsafe { ffi::__hyper_std_fs_sync(self.0.handle.0, 1) })
+        cvt(unsafe {
+            ffi::__hyper_std_fs_sync(self.0.handle.0, abi::HYPER_NATIVE_FILE_SYNC_ALL as u32)
+        })
     }
     pub fn datasync(&self) -> io::Result<()> {
-        cvt(unsafe { ffi::__hyper_std_fs_sync(self.0.handle.0, 0) })
+        cvt(unsafe {
+            ffi::__hyper_std_fs_sync(self.0.handle.0, abi::HYPER_NATIVE_FILE_SYNC_DATA as u32)
+        })
     }
     pub fn lock(&self) -> io::Result<()> {
-        self.acquire_lock(1, u64::MAX)
+        self.acquire_lock(abi::HYPER_NATIVE_FILE_LOCK_EXCLUSIVE as u32, u64::MAX)
     }
     pub fn lock_shared(&self) -> io::Result<()> {
-        self.acquire_lock(0, u64::MAX)
+        self.acquire_lock(abi::HYPER_NATIVE_FILE_LOCK_SHARED as u32, u64::MAX)
     }
     fn acquire_lock(&self, mode: u32, deadline: u64) -> io::Result<()> {
         cvt(unsafe { ffi::__hyper_std_fs_lock(self.0.handle.0, mode, deadline) })
     }
     pub fn try_lock(&self) -> Result<(), TryLockError> {
-        self.try_acquire_lock(1)
+        self.try_acquire_lock(abi::HYPER_NATIVE_FILE_LOCK_EXCLUSIVE as u32)
     }
     pub fn try_lock_shared(&self) -> Result<(), TryLockError> {
-        self.try_acquire_lock(0)
+        self.try_acquire_lock(abi::HYPER_NATIVE_FILE_LOCK_SHARED as u32)
     }
     fn try_acquire_lock(&self, mode: u32) -> Result<(), TryLockError> {
         match self.acquire_lock(mode, 0) {
@@ -347,7 +352,7 @@ impl File {
     }
     pub fn set_permissions(&self, permissions: FilePermissions) -> io::Result<()> {
         let update = ffi::FileUpdate {
-            mask: 1,
+            mask: abi::HYPER_NATIVE_FILE_UPDATE_MODE as u32,
             mode: permissions.0 & 0o7777,
             ..Default::default()
         };
@@ -445,7 +450,13 @@ impl DirEntry {
         let mut info = ffi::FileInfo::default();
         let name = self.name.as_encoded_bytes();
         cvt(unsafe {
-            ffi::__hyper_std_fs_stat_at(self.directory.0, name.as_ptr(), name.len(), 1, &mut info)
+            ffi::__hyper_std_fs_stat_at(
+                self.directory.0,
+                name.as_ptr(),
+                name.len(),
+                abi::HYPER_NATIVE_METADATA_LOOKUP_NOFOLLOW as u32,
+                &mut info,
+            )
         })?;
         FileAttr::checked(info)
     }
@@ -518,7 +529,7 @@ fn two_paths(from: &Path, to: &Path, hardlink: bool) -> io::Result<()> {
 }
 pub fn set_perm(path: &Path, permissions: FilePermissions) -> io::Result<()> {
     let update = ffi::FileUpdate {
-        mask: 1,
+        mask: abi::HYPER_NATIVE_FILE_UPDATE_MODE as u32,
         mode: permissions.0 & 0o7777,
         ..Default::default()
     };
@@ -550,7 +561,14 @@ pub fn link(from: &Path, to: &Path) -> io::Result<()> {
 pub fn lstat(path: &Path) -> io::Result<FileAttr> {
     let path = path_bytes(path)?;
     let mut info = ffi::FileInfo::default();
-    cvt(unsafe { ffi::__hyper_std_fs_stat(path.as_ptr(), path.len(), 1, &mut info) })?;
+    cvt(unsafe {
+        ffi::__hyper_std_fs_stat(
+            path.as_ptr(),
+            path.len(),
+            abi::HYPER_NATIVE_METADATA_LOOKUP_NOFOLLOW as u32,
+            &mut info,
+        )
+    })?;
     FileAttr::checked(info)
 }
 pub fn canonicalize(path: &Path) -> io::Result<PathBuf> {
@@ -615,32 +633,43 @@ impl FileAttr {
         if info.filesystem_id == 0
             || info.mount_id == 0
             || info.reserved != 0
-            || info.valid_times & !15 != 0
-            || !(1..=4).contains(&info.kind)
+            || info.valid_times
+                & !(abi::HYPER_NATIVE_FILE_TIME_ACCESSED
+                    | abi::HYPER_NATIVE_FILE_TIME_MODIFIED
+                    | abi::HYPER_NATIVE_FILE_TIME_CREATED
+                    | abi::HYPER_NATIVE_FILE_TIME_CHANGED) as u32
+                != 0
+            || ![
+                abi::HYPER_NATIVE_DIRECTORY_ENTRY_KIND_FILE as u32,
+                abi::HYPER_NATIVE_DIRECTORY_ENTRY_KIND_DIRECTORY as u32,
+                abi::HYPER_NATIVE_DIRECTORY_ENTRY_KIND_SYMLINK as u32,
+                abi::HYPER_NATIVE_DIRECTORY_ENTRY_KIND_OTHER as u32,
+            ]
+            .contains(&info.kind)
         {
             return Err(io::ErrorKind::InvalidData.into());
         }
         for (bit, seconds, nanos, reserved) in [
             (
-                1,
+                abi::HYPER_NATIVE_FILE_TIME_ACCESSED as u32,
                 info.accessed_seconds,
                 info.accessed_nanoseconds,
                 info.accessed_reserved,
             ),
             (
-                2,
+                abi::HYPER_NATIVE_FILE_TIME_MODIFIED as u32,
                 info.modified_seconds,
                 info.modified_nanoseconds,
                 info.modified_reserved,
             ),
             (
-                4,
+                abi::HYPER_NATIVE_FILE_TIME_CREATED as u32,
                 info.created_seconds,
                 info.created_nanoseconds,
                 info.created_reserved,
             ),
             (
-                8,
+                abi::HYPER_NATIVE_FILE_TIME_CHANGED as u32,
                 info.changed_seconds,
                 info.changed_nanoseconds,
                 info.changed_reserved,
@@ -790,7 +819,15 @@ struct RemovalFrame {
 }
 fn stat_at(parent: &Handle, name: &[u8]) -> io::Result<FileAttr> {
     let mut info = ffi::FileInfo::default();
-    cvt(unsafe { ffi::__hyper_std_fs_stat_at(parent.0, name.as_ptr(), name.len(), 1, &mut info) })?;
+    cvt(unsafe {
+        ffi::__hyper_std_fs_stat_at(
+            parent.0,
+            name.as_ptr(),
+            name.len(),
+            abi::HYPER_NATIVE_METADATA_LOOKUP_NOFOLLOW as u32,
+            &mut info,
+        )
+    })?;
     FileAttr::checked(info)
 }
 fn directory_info(directory: &Handle) -> io::Result<FileAttr> {

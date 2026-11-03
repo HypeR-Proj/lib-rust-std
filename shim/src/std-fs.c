@@ -5,18 +5,12 @@
 #include <hyper/startup.h>
 #include <hyper/syscall.h>
 
-#define READ 1u
-#define WRITE 2u
-#define APPEND 4u
-#define TRUNCATE 8u
-#define CREATE 16u
-#define EXCLUSIVE 32u
 
 int64_t __hyper_std_fs_open(const char *path, size_t size, uint32_t options, uint64_t *handle)
 {
 	*handle = 0;
-	if ((options & ~63u) || !(options & (READ | WRITE | APPEND)) ||
-	    ((options & (TRUNCATE | CREATE | EXCLUSIVE)) && !(options & (WRITE | APPEND))))
+	if ((options & ~(HYPER_STD_OPEN_READ | HYPER_STD_OPEN_WRITE | HYPER_STD_OPEN_APPEND | HYPER_STD_OPEN_TRUNCATE | HYPER_STD_OPEN_CREATE | HYPER_STD_OPEN_EXCLUSIVE)) || !(options & (HYPER_STD_OPEN_READ | HYPER_STD_OPEN_WRITE | HYPER_STD_OPEN_APPEND)) ||
+	    ((options & (HYPER_STD_OPEN_TRUNCATE | HYPER_STD_OPEN_CREATE | HYPER_STD_OPEN_EXCLUSIVE)) && !(options & (HYPER_STD_OPEN_WRITE | HYPER_STD_OPEN_APPEND))))
 		return HYPER_NATIVE_STATUS_INVALID_ARGUMENT;
 	uint64_t directory = 0;
 	int64_t status = hyper_runtime_directory_acquire(path, size, &directory);
@@ -28,13 +22,13 @@ int64_t __hyper_std_fs_open(const char *path, size_t size, uint32_t options, uin
 		uint64_t rights = HYPER_NATIVE_RIGHT_INSPECT | HYPER_NATIVE_RIGHT_DUPLICATE;
 		rights |= info.rights &
 			  (HYPER_NATIVE_RIGHT_SET_ATTRIBUTES | HYPER_NATIVE_RIGHT_LOCK_FILE);
-		if (options & READ)
+		if (options & HYPER_STD_OPEN_READ)
 			rights |= HYPER_NATIVE_RIGHT_READ;
-		if (options & (WRITE | APPEND))
+		if (options & (HYPER_STD_OPEN_WRITE | HYPER_STD_OPEN_APPEND))
 			rights |= HYPER_NATIVE_RIGHT_WRITE;
-		uint32_t native_options = options & EXCLUSIVE ? 3 : options & CREATE ? 1 : 0;
-		if ((options & TRUNCATE) && !(options & EXCLUSIVE))
-			native_options |= 4;
+		uint32_t native_options = options & HYPER_STD_OPEN_EXCLUSIVE ? HYPER_NATIVE_FILE_OPEN_CREATE | HYPER_NATIVE_FILE_OPEN_EXCLUSIVE : options & HYPER_STD_OPEN_CREATE ? HYPER_NATIVE_FILE_OPEN_CREATE : 0;
+		if ((options & HYPER_STD_OPEN_TRUNCATE) && !(options & HYPER_STD_OPEN_EXCLUSIVE))
+			native_options |= HYPER_NATIVE_FILE_OPEN_TRUNCATE;
 		hyper_call_result_t result = hyper_directory_open_file_with_options(
 			directory, path, size, rights, native_options, 0666);
 		status = result.status;

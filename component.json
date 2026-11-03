@@ -12,6 +12,16 @@
       "{system}/target/module-rust-std/removal"
     ],
     [
+      "python3",
+      "{component}/tools/check-abi.py",
+      "--abi",
+      "sdk/abi",
+      "--system",
+      "stdlib/system",
+      "--output",
+      "{system}/target/module-rust-std/abi"
+    ],
+    [
       "make",
       "rust-std-test",
       "ARCH=aarch64"

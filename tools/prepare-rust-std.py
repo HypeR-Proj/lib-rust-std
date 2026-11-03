@@ -8,12 +8,15 @@ import shutil
 import subprocess
 import sys
 
-source, destination, overlay = map(pathlib.Path, sys.argv[1:])
+source, destination, overlay, abi_source = map(pathlib.Path, sys.argv[1:])
 version = subprocess.check_output(["rustc", "--version"], text=True).split()[1]
 if version != "1.97.1":
     sys.exit("HypeR std patches require rustc 1.97.1 and its matching rust-src")
 shutil.copytree(source, destination)
 shutil.copytree(overlay, destination, dirs_exist_ok=True)
+# The PAL and C shim consume bindings from the same installed ABI candidate.
+shutil.copyfile(abi_source / "src/generated.rs",
+                destination / "std/src/sys/pal/hyper/native_abi.rs")
 
 
 def replace(path, old, new, count=1):
