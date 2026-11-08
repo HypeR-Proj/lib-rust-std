@@ -73,9 +73,15 @@ replace("std/src/sys/time/mod.rs", "cfg_select! {", '''cfg_select! {
         mod imp;
     }''')
 
-# Like upstream wasm's fallback, HashMap keys use allocation addresses. This
-# does not implement a cryptographic entropy source: fill_bytes still panics.
-replace("std/src/sys/random/mod.rs", '        target_os = "vexos",', '        target_os = "hyper",\n        target_os = "vexos",')
+# Keep HashMap startup independent of the random provider. Only secure fill
+# goes through the inherited service; it never falls back to address-based keys.
+replace("std/src/sys/random/mod.rs", 'cfg_select! {', '''cfg_select! {
+    target_os = "hyper" => {
+        mod hyper;
+        pub use hyper::fill_bytes;
+        mod unsupported;
+        pub use unsupported::hashmap_random_keys;
+    }''')
 replace("std/src/sys/random/mod.rs", '\n    target_os = "vexos",', '\n    target_os = "hyper",\n    target_os = "vexos",')
 
 replace("std/src/sys/env_consts.rs", '// The fallback when none of the other gates match.', '''#[cfg(target_os = "hyper")]

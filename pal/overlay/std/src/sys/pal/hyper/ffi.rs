@@ -15,6 +15,7 @@ pub const OPEN_CREATE: u32 = 16;
 pub const OPEN_EXCLUSIVE: u32 = 32;
 #[link(name = "hyper-std", kind = "static")]
 unsafe extern "C" {
+    pub fn __hyper_std_random_fill(buffer: *mut u8, length: usize) -> i64;
     pub fn __hyper_std_stdin_exact() -> i32;
     pub fn __hyper_std_is_terminal(stream: u32) -> i32;
     pub fn __hyper_std_flush(stream: u32) -> i64;
