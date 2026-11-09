@@ -5,6 +5,12 @@
 #include <hyper/startup.h>
 #include <hyper/stream.h>
 #include <hyper/syscall.h>
+#include <hyper/random.h>
+
+int64_t __hyper_std_random_fill(void *buffer, size_t length)
+{
+	return hyper_random_fill(buffer, length, HYPER_NATIVE_DEADLINE_INFINITE);
+}
 
 const char *__hyper_std_argument(size_t index)
 {

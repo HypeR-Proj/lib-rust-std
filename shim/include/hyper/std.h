@@ -6,6 +6,8 @@
 #include <hyper/thread.h>
 #include <stddef.h>
 #include <stdint.h>
+/* Secure fill requires an explicitly inherited random-service capability. */
+int64_t __hyper_std_random_fill(void *buffer, size_t length);
 
 /* Version 1 of the SDK-private Rust std bridge. No Rust layouts cross it.
  * Rust sources, this header and libhyper-std.a ship as one pinned SDK.

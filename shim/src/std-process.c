@@ -3,6 +3,7 @@
  */
 #include <hyper/std.h>
 #include <hyper/stream.h>
+#include <hyper/random.h>
 #include <hyper/launch.h>
 #include <stdlib.h>
 #include <hyper/startup.h>
@@ -123,6 +124,7 @@ int64_t __hyper_std_process_begin(const char *program, size_t size, const char *
 	if (status)
 		goto fail;
 	const uint32_t inherited[] = {
+		HYPER_RANDOM_CLIENT,
 		HYPER_LAUNCH_CHILD_LOADER,
 		HYPER_NATIVE_STARTUP_HANDLE_PURPOSE_ROOT_DIRECTORY,
 		HYPER_NATIVE_STARTUP_HANDLE_PURPOSE_TASK_FACTORY,
@@ -135,7 +137,12 @@ int64_t __hyper_std_process_begin(const char *program, size_t size, const char *
 					  : hyper_runtime_capability(inherited[i]);
 		if (!source)
 			continue;
-		status = delegate(builder, source, inherited[i], UINT64_MAX);
+		uint64_t ceiling = inherited[i] == HYPER_RANDOM_CLIENT
+					   ? HYPER_NATIVE_RIGHT_WRITE | HYPER_NATIVE_RIGHT_WAIT |
+						     HYPER_NATIVE_RIGHT_DUPLICATE |
+						     HYPER_NATIVE_RIGHT_TRANSFER
+					   : UINT64_MAX;
+		status = delegate(builder, source, inherited[i], ceiling);
 		if (status)
 			goto fail;
 	}

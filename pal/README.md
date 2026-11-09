@@ -45,10 +45,18 @@ input, output, and static/dynamic linking.
 | Networking | Upstream unsupported implementation |
 | Wall-clock time | RTC-anchored UTC, or uncalibrated Unix epoch plus uptime without RTC |
 | Environment mutation | Upstream unsupported behavior |
-| Cryptographic randomness | Unsupported; no entropy source is claimed |
+| Cryptographic randomness | Secure fill through the explicitly inherited random-service capability; unavailable authority/source fails without weak fallback |
 | HashMap seeds | Upstream unsupported-target address-based fallback; no strong collision-attack resistance claim |
 | Terminal detection | Per-descriptor connector metadata for `IsTerminal`; sizing uses the separate Native terminal API |
 | Panic | Abort; diagnostics use stderr, no unwinding or symbolized backtrace |
+
+Secure random fill uses the lib-system client and initialized I/O VM Linux
+randomness, without introducing a kernel random syscall. `Command` explicitly
+inherits the optional connector when present. The PAL's infallible fill panics
+on failure. HashMap startup deliberately keeps its existing noncryptographic
+address-derived seed so bootstrap and the random provider do not depend on their
+own service. These are separate contracts; HashMap seeding is not a secure random
+source. Third-party random crates still need HypeR target support.
 
 This is a partial std platform port. Crates that directly depend on Unix,
 libc, native TLS, or another OS-specific backend still require their own
